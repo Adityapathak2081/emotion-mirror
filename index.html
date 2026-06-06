@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emotion Mirror</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="grain"></div>
+
+  <header>
+    <div class="logo">
+      <span class="logo-icon">◉</span>
+      <span class="logo-text">EMOTION<br><em>MIRROR</em></span>
+    </div>
+    <div class="status-bar">
+      <span class="status-dot" id="statusDot"></span>
+      <span class="status-label" id="statusLabel">INITIALIZING</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="camera-wrap">
+      <video id="video" autoplay muted playsinline></video>
+      <canvas id="overlay"></canvas>
+
+      <div class="no-face-overlay" id="noFaceOverlay">
+        <div class="no-face-content">
+          <div class="scan-icon">⬡</div>
+          <p>NO FACE DETECTED</p>
+          <small>Position yourself in the frame</small>
+        </div>
+      </div>
+
+      <div class="multi-face-badge" id="multiFaceBadge">
+        <span id="faceCountLabel">2 FACES</span>
+      </div>
+
+      <div class="corner tl"></div>
+      <div class="corner tr"></div>
+      <div class="corner bl"></div>
+      <div class="corner br"></div>
+    </div>
+
+    <div class="panel">
+      <div class="dominant-emotion" id="dominantEmotion">
+        <div class="emotion-icon" id="emotionIcon">—</div>
+        <div class="emotion-name" id="emotionName">WAITING</div>
+        <div class="emotion-sub" id="emotionSub">look into the camera</div>
+      </div>
+
+      <div class="bars-section">
+        <div class="bars-title">EMOTION SPECTRUM</div>
+        <div class="bars" id="barsContainer">
+          <!-- filled by JS -->
+        </div>
+      </div>
+
+      <div class="history-section">
+        <div class="bars-title">RECENT HISTORY</div>
+        <div class="history-track" id="historyTrack"></div>
+      </div>
+
+      <div class="fps-row">
+        <span class="mono" id="fpsLabel">— FPS</span>
+        <span class="mono" id="faceCountInfo">— faces</span>
+        <span class="mono" id="confLabel">CONF —%</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- face-api.js from CDN -->
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

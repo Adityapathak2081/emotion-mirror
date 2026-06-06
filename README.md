@@ -1,16 +1,16 @@
-# 🪞 Emotion Mirror
+#  Emotion Mirror
 
 A real-time webcam app that detects faces and predicts emotions live — built with `face-api.js` on top of TensorFlow.js.
 
 ## Features
 
-- 🎯 **Real-time emotion detection** — happy, sad, angry, surprised, fearful, disgusted, neutral
-- 👥 **Multi-face support** — detects all faces; uses the closest/largest as primary
-- 📊 **Live probability bars** — full spectrum of emotion scores, updated per frame
-- 🕓 **Emotion history trail** — rolling history of recent emotion shifts
-- 🚫 **No-face state** — graceful overlay when nobody is in frame
-- ⚡ **FPS counter** — live performance monitoring
-- 🎨 **Polished dark UI** — grain texture, animated logo, per-emotion accent colors
+-  **Real-time emotion detection** — happy, sad, angry, surprised, fearful, disgusted, neutral
+-  **Multi-face support** — detects all faces; uses the closest/largest as primary
+-  **Live probability bars** — full spectrum of emotion scores, updated per frame
+-  **Emotion history trail** — rolling history of recent emotion shifts
+-  **No-face state** — graceful overlay when nobody is in frame
+-  **FPS counter** — live performance monitoring
+-  **Polished dark UI** — grain texture, animated logo, per-emotion accent colors
 
 ---
 

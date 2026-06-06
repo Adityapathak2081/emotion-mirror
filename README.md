@@ -2,8 +2,6 @@
 
 A real-time webcam app that detects faces and predicts emotions live — built with `face-api.js` on top of TensorFlow.js.
 
-![Emotion Mirror UI](https://placeholder.co/800x400)
-
 ## Features
 
 - 🎯 **Real-time emotion detection** — happy, sad, angry, surprised, fearful, disgusted, neutral
@@ -16,93 +14,80 @@ A real-time webcam app that detects faces and predicts emotions live — built w
 
 ---
 
-## Setup
+## Setup & Running Locally
 
-### Option A — Quickest (Python, no install)
+### Prerequisites
+- Python 3 installed
+- A webcam
+- A modern browser (Chrome recommended)
 
+### Steps
+
+1. Clone the repository:
 ```bash
+git clone https://github.com/Adityapathak2081/emotion-mirror.git
 cd emotion-mirror
-python3 -m http.server 8080
 ```
 
-Then open: [http://localhost:8080](http://localhost:8080)
-
-> **Why a local server?** Browsers block webcam access and ES module imports from `file://` URLs. A local server solves both.
-
-### Option B — Node.js
-
+2. Start a local server:
 ```bash
-cd emotion-mirror
-npx serve .
+python -m http.server 8080
 ```
 
-Or with `live-server`:
-
-```bash
-npm install -g live-server
-live-server
+3. Open your browser and go to:
+```
+http://localhost:8080
 ```
 
-### Option C — VS Code
+4. Allow camera access when prompted — detection starts automatically.
 
-Install the **Live Server** extension by Ritwick Dey, right-click `index.html` → **Open with Live Server**.
+> **Why a local server?** Browsers block webcam access from `file://` URLs. A local server solves this.
 
 ---
 
-## First-time load
-
-On the very first visit, the browser will:
-1. Download the face-api.js models (~6 MB total) from jsDelivr CDN
-2. Request webcam permission — click **Allow**
-
-After that, the status bar turns green and detection begins immediately.
-
----
-
-## How it works
+## How It Works
 
 | Component | Library / Tech |
 |-----------|---------------|
 | Face detection | `TinyFaceDetector` (face-api.js) |
 | Emotion classification | `FaceExpressionNet` (face-api.js) |
+| Smoothing | Exponential Moving Average (EMA) across frames |
 | Rendering | HTML5 Canvas overlay |
-| UI | Vanilla HTML/CSS/JS — zero framework |
+| UI | Vanilla HTML, CSS, JavaScript — no frameworks |
 
-### Detection strategy
+### Detection Pipeline
+```
+Webcam frame
+    → TinyFaceDetector CNN → face bounding boxes
+    → FaceExpressionNet CNN → raw emotion scores
+    → Sensitivity boost (amplify non-neutral emotions)
+    → EMA smoothing (stabilize across frames)
+    → Display
+```
 
-- All faces in frame are detected and drawn with bounding boxes
-- The **largest bounding box** (person closest to camera) is treated as primary — its emotions drive the main panel
-- A "MULTI-FACE" badge appears when more than one person is detected
-- After ~8 consecutive frames with no face, a "no face" overlay fades in gracefully
-
----
-
-## What I learned / found challenging
-
-Building this surfaced a few interesting challenges:
-
-**Model loading UX** was the first hurdle — face-api.js fetches several model files at startup, and without feedback the app just looks broken. Adding a clear `LOADING MODELS → STARTING CAMERA → LIVE` status flow made a huge difference to the perceived experience.
-
-**The mirroring problem** was subtler than expected. The video element is CSS-mirrored (`scaleX(-1)`) so it feels natural to users, but the canvas overlay draws in raw video coordinates. The fix is to also apply `scaleX(-1)` to the canvas so the bounding boxes align correctly — took some debugging to land on.
-
-**Multi-face handling** required a deliberate design decision: rather than averaging emotions across faces or showing a list, picking the primary face (largest area = closest = most prominent) keeps the UI focused and readable without becoming chaotic.
-
-**Smoothing vs. responsiveness** is an ongoing tension in real-time detection. The current approach prioritises responsiveness (no smoothing) which can cause flickering between similar emotions (e.g. neutral ↔ happy at low confidence). A simple exponential moving average on the expression scores would reduce jitter — left as a future improvement.
+### Edge Cases Handled
+- **No face detected** — a pulsing overlay appears after a few empty frames
+- **Multiple faces** — all faces are boxed; the largest (closest) drives the emotion panel
+- **Noisy predictions** — EMA smoothing prevents flickering between similar emotions
 
 ---
 
-## File structure
+## File Structure
 
 ```
 emotion-mirror/
-├── index.html   ← markup & layout
-├── style.css    ← all styles (CSS variables, animations)
+├── index.html   ← markup and layout
+├── style.css    ← all styles, animations, CSS variables
 ├── app.js       ← detection loop, canvas drawing, UI updates
 └── README.md    ← this file
 ```
 
 ---
 
-## Browser compatibility
+## What I Learned & Found Challenging
 
-Tested on Chrome 120+, Firefox 121+, Safari 17+. Requires a device with a camera and a browser that supports `getUserMedia`.
+The most interesting challenge was dealing with the model's bias toward **neutral**. The pre-trained `FaceExpressionNet` tends to predict neutral far too often because most real-world faces at rest look neutral, which is what the training data reflects. To fix this, I applied per-emotion sensitivity multipliers to the raw scores (boosting sad, angry, fearful, etc. while dampening neutral), then renormalized so scores still sum to 1. This made a huge difference in responsiveness.
+
+Another tricky part was the **canvas mirroring problem**. The video is CSS-mirrored so it feels natural to the user, but the canvas draws in raw video coordinates — so bounding boxes were appearing on the wrong side of the face. The fix was to apply the same `scaleX(-1)` transform to the canvas element.
+
+Finally, implementing **Exponential Moving Average smoothing** across frames taught me a lot about the tradeoff between responsiveness and stability in real-time ML applications — reacting too fast causes jitter, too slow and the app feels laggy.
